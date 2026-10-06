@@ -50,21 +50,45 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-      imgSrc: ["'self'", 'data:'],
-      connectSrc: ["'self'"],
-      formAction: ["'self'"],
+ async function readLeads() {
+  const rows = await supabaseRequest(
+    'leads?select=*&order=created_at.desc'
+  );
+
+  return rows.map(row => ({
+    id: row.id,
+    createdAt: row.created_at,
+    name: row.name,
+    phone: row.phone,
+    email: row.email,
+    projectType: row.project_type,
+    location: row.location,
+    area: row.area,
+    message: row.message,
+    ip: row.ip,
+  }));
+}
+
+async function saveLead(lead) {
+  await supabaseRequest('leads', {
+    method: 'POST',
+    headers: {
+      Prefer: 'return=minimal',
     },
-  },
-}));
-app.use(compression());
-app.use(express.json({ limit: '20kb' }));
-app.get('/admin', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'admin', 'index.html'));
-});
-app.use(express.static(__dirname, {
+    body: JSON.stringify({
+      id: lead.id,
+      created_at: lead.createdAt,
+      name: lead.name,
+      phone: lead.phone,
+      email: lead.email || null,
+      project_type: lead.projectType,
+      location: lead.location,
+      area: lead.area,
+      message: lead.message,
+      ip: lead.ip,
+    }),
+  });
+}
   extensions: ['html'],
   setHeaders(res, file) {
     if (file.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
@@ -159,7 +183,7 @@ app.get('/api/leads', async (req, res) => {
     return res.status(401).json({ ok: false, error: 'Unauthorised' });
   }
   const leads = await readLeads();
-  res.json({ ok: true, count: leads.length, leads: leads.reverse() });
+res.json({ ok: true, count: leads.length, leads });
 });
 
 app.get('/api/health', (_req, res) => res.json({ ok: true, uptime: process.uptime() }));
