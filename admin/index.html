@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blue Dream — Admin Panel</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #172033;
+    }
+
+    .login-box {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      padding: 35px;
+      border-radius: 18px;
+      box-shadow: 0 15px 45px rgba(0,0,0,.10);
+    }
+
+    .login-card h1 {
+      margin-bottom: 8px;
+      font-size: 28px;
+    }
+
+    .login-card p {
+      color: #6b7280;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #d9dee8;
+      border-radius: 10px;
+      font-size: 15px;
+      margin-bottom: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #1d4ed8;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 13px 18px;
+      font-weight: 600;
+    }
+
+    .login-btn {
+      width: 100%;
+      background: #172b4d;
+      color: white;
+      font-size: 16px;
+    }
+
+    .error {
+      color: #dc2626;
+      margin-top: 12px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .dashboard {
+      display: none;
+    }
+
+    header {
+      background: #172b4d;
+      color: white;
+      padding: 18px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h2 {
+      font-size: 22px;
+    }
+
+    .logout {
+      background: white;
+      color: #172b4d;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+
+    .stat {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.05);
+    }
+
+    .stat span {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 30px;
+      margin-top: 8px;
+    }
+
+    .leads-box {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      overflow-x: auto;
+      box-shadow: 0 5px 20px rgba(0,0,0,.05);
+    }
+
+    .leads-box h2 {
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    th, td {
+      padding: 13px 10px;
+      border-bottom: 1px solid #edf0f5;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f8fafc;
+    }
+
+    .status {
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      background: #e8eef8;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #6b7280;
+    }
+
+    @media (max-width: 800px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      header {
+        padding: 15px;
+      }
+
+      .container {
+        padding: 20px 12px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .login-card {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN -->
+  <div class="login-box" id="loginBox">
+    <div class="login-card">
+      <h1>Blue Dream</h1>
+      <p>Admin Panel Login</p>
+
+      <input
+        type="password"
+        id="token"
+        placeholder="Enter Admin Token"
+      >
+
+      <button class="login-btn" onclick="login()">
+        Login
+      </button>
+
+      <div class="error" id="error">
+        Invalid Admin Token.
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+
+    <header>
+      <h2>Blue Dream Admin</h2>
+      <button class="logout" onclick="logout()">Logout</button>
+    </header>
+
+    <div class="container">
+
+      <div class="stats">
+        <div class="stat">
+          <span>Total Leads</span>
+          <strong id="total">0</strong>
+        </div>
+
+        <div class="stat">
+          <span>New</span>
+          <strong id="newLeads">0</strong>
+        </div>
+
+        <div class="stat">
+          <span>Contacted</span>
+          <strong id="contacted">0</strong>
+        </div>
+
+        <div class="stat">
+          <span>Closed</span>
+          <strong id="closed">0</strong>
+        </div>
+      </div>
+
+      <div class="leads-box">
+        <h2>Customer Enquiries</h2>
+
+        <div id="loading" class="loading">
+          Loading leads...
+        </div>
+
+        <table id="leadTable" style="display:none;">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Project</th>
+              <th>Message</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+
+          <tbody id="leadBody"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let adminToken = "";
+
+    async function login() {
+      const token = document.getElementById("token").value.trim();
+
+      if (!token) {
+        showError();
+        return;
+      }
+
+      adminToken = token;
+
+      try {
+        const response = await fetch("/api/leads", {
+          headers: {
+            "Authorization": "Bearer " + adminToken
+          }
+        });
+
+        if (!response.ok) {
+          showError();
+          adminToken = "";
+          return;
+        }
+
+        const data = await response.json();
+
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
+        loadLeads(data);
+
+      } catch (error) {
+        showError();
+      }
+    }
+
+    function showError() {
+      document.getElementById("error").style.display = "block";
+    }
+
+    function loadLeads(leads) {
+
+      if (!Array.isArray(leads)) {
+        leads = [];
+      }
+
+      document.getElementById("total").textContent = leads.length;
+
+      document.getElementById("newLeads").textContent =
+        leads.filter(x => x.status === "new" || !x.status).length;
+
+      document.getElementById("contacted").textContent =
+        leads.filter(x => x.status === "contacted").length;
+
+      document.getElementById("closed").textContent =
+        leads.filter(x => x.status === "closed").length;
+
+      const body = document.getElementById("leadBody");
+      body.innerHTML = "";
+
+      leads.forEach(lead => {
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${escapeHTML(lead.name || "-")}</td>
+          <td>${escapeHTML(lead.phone || "-")}</td>
+          <td>${escapeHTML(lead.email || "-")}</td>
+          <td>${escapeHTML(lead.project || lead.service || "-")}</td>
+          <td>${escapeHTML(lead.message || "-")}</td>
+          <td>${formatDate(lead.createdAt || lead.date)}</td>
+        `;
+
+        body.appendChild(row);
+      });
+
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("leadTable").style.display = "table";
+    }
+
+    function formatDate(date) {
+      if (!date) return "-";
+
+      try {
+        return new Date(date).toLocaleString();
+      } catch {
+        return date;
+      }
+    }
+
+    function escapeHTML(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function logout() {
+      adminToken = "";
+      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("loginBox").style.display = "flex";
+      document.getElementById("token").value = "";
+    }
+  </script>
+
+</body>
+</html>
