@@ -36,7 +36,7 @@ app.use(helmet({
 }));
 app.use(compression());
 app.use(express.json({ limit: '20kb' }));
-app.use(express.static(path.join(__dirname, 'public'), {
+app.use(express.static(__dirname, {
   extensions: ['html'],
   setHeaders(res, file) {
     if (file.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
@@ -137,6 +137,6 @@ app.get('/api/leads', async (req, res) => {
 app.get('/api/health', (_req, res) => res.json({ ok: true, uptime: process.uptime() }));
 
 app.use('/api', (_req, res) => res.status(404).json({ ok: false, error: 'Not found' }));
-app.use((_req, res) => res.status(404).sendFile(path.join(__dirname, 'public', 'index.html')));
+app.use((_req, res) => res.status(404).sendFile(path.join(__dirname, 'index.html')));
 
 app.listen(PORT, () => console.log(`Blue Dream website running → http://localhost:${PORT}`));
