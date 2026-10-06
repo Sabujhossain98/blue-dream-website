@@ -36,6 +36,9 @@ app.use(helmet({
 }));
 app.use(compression());
 app.use(express.json({ limit: '20kb' }));
+app.get('/admin', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'admin', 'index.html'));
+});
 app.use(express.static(__dirname, {
   extensions: ['html'],
   setHeaders(res, file) {
